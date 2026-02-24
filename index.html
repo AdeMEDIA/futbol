@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ade ⚽ Predictions</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #0A1F2E 0%, #1C3A4F 100%);
+            min-height: 100vh;
+            padding: 16px;
+            color: #FFFFFF;
+            padding-bottom: 80px;
+        }
+
+        .header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding: 8px 0;
+        }
+
+        .ade-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, #FFB347, #FF8C00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: bold;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.3);
+            border: 2px solid #FFD700;
+        }
+
+        .ade-info {
+            flex: 1;
+        }
+
+        .ade-name {
+            font-size: 24px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+        }
+
+        .ade-tagline {
+            font-size: 14px;
+            color: #B0E0FF;
+            font-style: italic;
+        }
+
+        .ade-status {
+            background: #2E4A62;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            color: #98FB98;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 14px 8px;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #FFD700;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: #B0E0FF;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .league-filter {
+            margin-bottom: 20px;
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 4px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .league-chip {
+            display: inline-block;
+            background: #2E4A62;
+            padding: 8px 16px;
+            border-radius: 30px;
+            margin-right: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #FFFFFF;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .league-chip.active {
+            background: linear-gradient(135deg, #FFB347, #FF8C00);
+            border-color: #FFD700;
+            box-shadow: 0 2px 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .match-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 215, 0, 0.1);
+        }
+
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 13px;
+            color: #B0E0FF;
+        }
+
+        .match-league {
+            background: #2E4A62;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+        }
+
+        .teams {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+
+        .team {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 40%;
+        }
+
+        .team-logo {
+            width: 40px;
+            height: 40px;
+            background: #2E4A62;
+            border-radius: 50%;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .team-name {
+            font-weight: 600;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .vs {
+            color: #FFD700;
+            font-weight: 800;
+            font-size: 18px;
+        }
+
+        .prediction-box {
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1), rgba(255, 140, 0, 0.1));
+            border-radius: 12px;
+            padding: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .prediction-value {
+            font-weight: 700;
+            color: #FFD700;
+            font-size: 16px;
+        }
+
+        .confidence-text {
+            font-weight: 600;
+            color: #60EFFF;
+            font-size: 14px;
+        }
+
+        .ade-comment {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #B0E0FF;
+            font-style: italic;
+            padding: 8px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            border-left: 3px solid #FFD700;
+        }
+
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #0F2A38;
+            backdrop-filter: blur(10px);
+            display: flex;
+            justify-content: space-around;
+            padding: 12px 16px 20px;
+            border-top: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            color: #B0E0FF;
+            font-size: 12px;
+            gap: 4px;
+            cursor: pointer;
+        }
+
+        .nav-item.active {
+            color: #FFD700;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #B0E0FF;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="ade-avatar">🇳🇬</div>
+        <div class="ade-info">
+            <div class="ade-name">ADE PREDICTIONS</div>
+            <div class="ade-tagline">"Wetin dey happen?!"</div>
+            <div class="ade-status">⚽ Online • 85% accuracy</div>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-value" id="statToday">0</div>
+            <div class="stat-label">TODAY</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statAccuracy">63%</div>
+            <div class="stat-label">ACCURACY</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value" id="statProfit">$124</div>
+            <div class="stat-label">PROFIT</div>
+        </div>
+    </div>
+
+    <div class="league-filter" id="leagueFilter">
+        <span class="league-chip active" data-league="ALL">🌍 All Leagues</span>
+        <span class="league-chip" data-league="PL">🏴󠁧󠁢󠁥󠁮󠁧󠁿 EPL</span>
+        <span class="league-chip" data-league="PD">🇪🇸 LaLiga</span>
+        <span class="league-chip" data-league="SA">🇮🇹 Serie A</span>
+        <span class="league-chip" data-league="BL1">🇩🇪 Bundesliga</span>
+    </div>
+
+    <div id="matchesContainer">
+        <div class="loading">Ade dey find matches...</div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">🔮</span>
+            <span>My Picks</span>
+        </div>
+        <div class="nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Stats</span>
+        </div>
+    </div>
+
+    <script>
+        let tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+
+        const container = document.getElementById('matchesContainer');
+        
+        async function loadMatches(league = 'ALL') {
+            container.innerHTML = '<div class="loading">Ade dey check matches for ' + league + '...</div>';
+            
+            setTimeout(() => {
+                const matches = [
+                    { home: "Arsenal", away: "Liverpool", league: "Premier League", time: "16:30", conf: 78, pred: "Home Win", comment: "Arsenal go collect three points today! Sure pass bank! 💯" },
+                    { home: "Real Madrid", away: "Barcelona", league: "La Liga", time: "20:00", conf: 52, pred: "Draw", comment: "This one tough o. 50-50 like Jollof vs Fried Rice! 🍛" }
+                ];
+                
+                container.innerHTML = '';
+                matches.forEach(m => {
+                    const card = document.createElement('div');
+                    card.className = 'match-card';
+                    card.innerHTML = `
+                        <div class="match-header">
+                            <span class="match-league">${m.league}</span>
+                            <span class="match-time">${m.time}</span>
+                        </div>
+                        <div class="teams">
+                            <div class="team">
+                                <div class="team-logo">⚽</div>
+                                <div class="team-name">${m.home}</div>
+                            </div>
+                            <div class="vs">VS</div>
+                            <div class="team">
+                                <div class="team-logo">⚽</div>
+                                <div class="team-name">${m.away}</div>
+                            </div>
+                        </div>
+                        <div class="prediction-box">
+                            <div class="prediction-main">
+                                <div class="prediction-label">ADE PREDICTS</div>
+                                <div class="prediction-value">${m.pred}</div>
+                            </div>
+                            <div class="confidence-text">${m.conf}% CONF</div>
+                        </div>
+                        <div class="ade-comment">${m.comment}</div>
+                    `;
+                    container.appendChild(card);
+                });
+                document.getElementById('statToday').innerText = matches.length;
+            }, 800);
+        }
+
+        document.querySelectorAll('.league-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelector('.league-chip.active').classList.remove('active');
+                chip.classList.add('active');
+                loadMatches(chip.dataset.league);
+            });
+        });
+
+        loadMatches();
+    </script>
+</body>
+</html>
